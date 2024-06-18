@@ -1,0 +1,20 @@
+services:
+  db:
+    container_name: mysql
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: db_irede_golang_dev
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - '../.docker/dbdata:/var/lib/mysql'
+      - ./db.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+volumes:
+  db:
