@@ -40,7 +40,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/model_movie.Movie"
+                            "type": "string"
                         }
                     }
                 }
@@ -172,7 +172,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/model_room.Room"
+                            "type": "string"
                         }
                     }
                 }

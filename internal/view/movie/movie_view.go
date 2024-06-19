@@ -46,7 +46,7 @@ func NewViewMovie(vm *ViewMovie) (result *ViewMovie) {
 // @Summary      Create a movie
 // @Tags         Movies
 // @Param        data body Body true "body"
-// @Success      201  {object}  model_movie.Movie
+// @Success      201  {string} string true
 // @Router       /movies [post]
 func (vm *ViewMovie) CreateHandler(w http.ResponseWriter, r *http.Request) {
 	movie := &model_movie.Movie{}

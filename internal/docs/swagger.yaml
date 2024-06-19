@@ -91,7 +91,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/model_movie.Movie'
+            type: string
       summary: Create a movie
       tags:
       - Movies
@@ -176,7 +176,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/model_room.Room'
+            type: string
       summary: Create a movie
       tags:
       - Rooms

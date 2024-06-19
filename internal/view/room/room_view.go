@@ -49,7 +49,7 @@ func NewViewRoom(rm *ViewRoom) (result *ViewRoom) {
 // @Summary      Create a movie
 // @Tags         Rooms
 // @Param        data body InputRoomReq true "body"
-// @Success      201  {object}  model_room.Room
+// @Success      201  {string} string true
 // @Router       /rooms [post]
 func (rm *ViewRoom) CreateHandler(w http.ResponseWriter, r *http.Request) {
 	input := &InputRoomReq{}
