@@ -2,6 +2,7 @@ package controller_room
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/google/uuid"
 	controller_interfaces "github.com/rochaeduardo997/irede_golang_dev/internal/controller/interfaces"
@@ -34,10 +35,12 @@ func (cm *ControllerRoom) Create(r *model_room.Room) (result string, err error) 
 		tx.Rollback()
 		return "", err
 	}
-	err = cm.InsertRoomMovies(r.Id, r.Movies, tx)
-	if err != nil {
-		tx.Rollback()
-		return "", err
+	if len(r.Movies) > 0 {
+		err = cm.InsertRoomMovies(r.Id, r.Movies, tx)
+		if err != nil {
+			tx.Rollback()
+			return "", err
+		}
 	}
 
 	tx.Commit()
@@ -50,13 +53,22 @@ func (cm *ControllerRoom) InsertRoomMovies(roomId string, ms []*model_movie.Movi
 		INSERT INTO room_movies(fk_room_id, fk_movie_id)
 		VALUES(?,?)
 	`
+	moviesChan := make(chan *model_movie.Movie)
+	for i := 0; i <= 2; i++ {
+		go cm.InsertRoomMoviesThread(query, roomId, tx, moviesChan)
+	}
 	for _, movie := range ms {
-		_, err = tx.Query(query, &roomId, &movie.Id)
-		if err != nil {
-			return err
-		}
+		moviesChan <- movie
 	}
 	return nil
+}
+func (cm *ControllerRoom) InsertRoomMoviesThread(query, roomId string, tx *sql.Tx, moviesChan chan *model_movie.Movie) {
+	for movie := range moviesChan {
+		_, err := tx.Query(query, &roomId, &movie.Id)
+		if err != nil {
+			tx.Rollback()
+		}
+	}
 }
 
 func (cm *ControllerRoom) FindBy(id string) (result *model_room.Room, err error) {
@@ -73,6 +85,9 @@ func (cm *ControllerRoom) FindBy(id string) (result *model_room.Room, err error)
 	result = &model_room.Room{}
 	for rows.Next() {
 		rows.Scan(&result.Id, &result.Number, &result.Description)
+	}
+	if result.Id == "" {
+		return nil, errors.New("room not found")
 	}
 	result.Movies = cm.GetAssociatedMoviesBy(result.Id)
 	err = result.IsValid()
@@ -95,9 +110,9 @@ func (cm *ControllerRoom) GetAssociatedMoviesBy(roomId string) (result []*model_
 	}
 	result = []*model_movie.Movie{}
 	for rows.Next() {
-		var movieId *string
+		var movieId string
 		rows.Scan(&movieId)
-		movie, err := cm.MovieController.FindBy(*movieId)
+		movie, err := cm.MovieController.FindBy(movieId)
 		if err != nil {
 			continue
 		}
@@ -152,6 +167,10 @@ func (cm *ControllerRoom) GetTotal() (result uint32, err error) {
 }
 
 func (cm *ControllerRoom) UpdateBy(id string, m *model_room.Room) (result bool, err error) {
+	_, err = cm.FindBy(id)
+	if err != nil {
+		return false, err
+	}
 	updateQuery := `
 		UPDATE rooms
 		SET
@@ -184,11 +203,28 @@ func (cm *ControllerRoom) UpdateBy(id string, m *model_room.Room) (result bool, 
 }
 
 func (cm *ControllerRoom) DeleteBy(id string) (result bool, err error) {
-	query := `DELETE FROM rooms WHERE id = ?`
-	_, err = cm.Db.Query(query, &id)
+	_, err = cm.FindBy(id)
 	if err != nil {
 		return false, err
 	}
+	tx, err := cm.Db.Begin()
+	if err != nil {
+		return false, err
+	}
+	deleteAllRoomMoviesQuery := `DELETE FROM room_movies WHERE fk_room_id = ?`
+	_, err = tx.Query(deleteAllRoomMoviesQuery, &id)
+	if err != nil {
+		tx.Rollback()
+		return false, err
+	}
+	query := `DELETE FROM rooms WHERE id = ?`
+	_, err = tx.Query(query, &id)
+	if err != nil {
+		tx.Rollback()
+		return false, err
+	}
+
+	tx.Commit()
 
 	return true, nil
 }

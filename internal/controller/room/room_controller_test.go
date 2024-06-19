@@ -107,10 +107,12 @@ func TestUpdate(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	db := instanceDB()
-	controllerRoom, _ := controller_room.NewControllerRoom(&controller_room.ControllerRoom{Db: db})
+	controllerMovie, _ := controller_movie.NewControllerMovie(&controller_movie.ControllerMovie{Db: db})
+	controllerRoom, _ := controller_room.NewControllerRoom(&controller_room.ControllerRoom{Db: db, MovieController: controllerMovie})
 	room := instanceRoom()
-	id, _ := controllerRoom.Create(room)
-	result, err := controllerRoom.DeleteBy(id)
+	controllerMovie.Create(room.Movies[0])
+	controllerRoom.Create(room)
+	result, err := controllerRoom.DeleteBy(room.Id)
 	assert.Nil(t, err)
 	assert.Equal(t, true, result)
 }
