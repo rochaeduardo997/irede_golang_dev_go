@@ -2,7 +2,6 @@ package controller_movie_test
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"testing"
 
@@ -64,14 +63,15 @@ func TestFindAll(t *testing.T) {
 	controllerMovie, _ := controller_movie.NewControllerMovie(&controller_movie.ControllerMovie{Db: db})
 	movie := instanceMovie()
 	id, _ := controllerMovie.Create(movie)
-	result, err := controllerMovie.FindAll()
-	fmt.Println(result)
+	result, err := controllerMovie.FindAll(1)
 	assert.Nil(t, err)
-	assert.Equal(t, id, result[0].Id)
-	assert.Equal(t, movie.Name, result[0].Name)
-	assert.Equal(t, movie.Director, result[0].Director)
-	assert.Equal(t, movie.DurationInSeconds, result[0].DurationInSeconds)
-	assert.Equal(t, movie.DurationInHours(), result[0].DurationInHours())
+	assert.Equal(t, uint32(1), result.Total)
+	assert.Equal(t, uint16(1), result.Page)
+	assert.Equal(t, id, result.Registers[0].Id)
+	assert.Equal(t, movie.Name, result.Registers[0].Name)
+	assert.Equal(t, movie.Director, result.Registers[0].Director)
+	assert.Equal(t, movie.DurationInSeconds, result.Registers[0].DurationInSeconds)
+	assert.Equal(t, movie.DurationInHours(), result.Registers[0].DurationInHours())
 }
 
 func TestUpdate(t *testing.T) {

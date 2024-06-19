@@ -10,7 +10,7 @@ import (
 
 type ControllerMovie struct{ Db *sql.DB }
 
-func NewControllerMovie(vm *ControllerMovie) (result controller_interfaces.IControllerMovie, err error) {
+func NewControllerMovie(vm *ControllerMovie) (result controller_interfaces.IGenericController[model_movie.Movie], err error) {
 	result = vm
 	return
 }
@@ -52,15 +52,20 @@ func (cm *ControllerMovie) FindBy(id string) (result *model_movie.Movie, err err
 	return
 }
 
-func (cm *ControllerMovie) FindAll() (result []*model_movie.Movie, err error) {
+func (cm *ControllerMovie) FindAll(page uint16) (result *controller_interfaces.FindAllResponse[model_movie.Movie], err error) {
 	query := `
 		SELECT id, name, director, duration_in_seconds
 		FROM movies
+		LIMIT ?
+		OFFSET ?
 	`
-	rows, err := cm.Db.Query(query)
+	limit := uint16(10)
+	offset := limit * (page - 1)
+	rows, err := cm.Db.Query(query, limit, offset)
 	if err != nil {
 		return nil, err
 	}
+	result = &controller_interfaces.FindAllResponse[model_movie.Movie]{}
 	for rows.Next() {
 		var target model_movie.Movie
 		rows.Scan(&target.Id, &target.Name, &target.Director, &target.DurationInSeconds)
@@ -68,9 +73,25 @@ func (cm *ControllerMovie) FindAll() (result []*model_movie.Movie, err error) {
 		if err != nil {
 			continue
 		}
-		result = append(result, &target)
+		result.Registers = append(result.Registers, &target)
 	}
+	result.Total, err = cm.GetTotal()
+	if err != nil {
+		return nil, err
+	}
+	result.Page = page
+	return
+}
 
+func (cm *ControllerMovie) GetTotal() (result uint32, err error) {
+	query := `SELECT COUNT(1) FROM movies`
+	rows, err := cm.Db.Query(query)
+	if err != nil {
+		return 0, err
+	}
+	for rows.Next() {
+		rows.Scan(&result)
+	}
 	return
 }
 
