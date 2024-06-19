@@ -2,6 +2,7 @@ package controller_movie
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/google/uuid"
 	controller_interfaces "github.com/rochaeduardo997/irede_golang_dev/internal/controller/interfaces"
@@ -43,6 +44,9 @@ func (cm *ControllerMovie) FindBy(id string) (result *model_movie.Movie, err err
 	result = &model_movie.Movie{}
 	for rows.Next() {
 		rows.Scan(&result.Id, &result.Name, &result.Director, &result.DurationInSeconds)
+	}
+	if result.Id == "" {
+		return nil, errors.New("movie not found")
 	}
 	err = result.IsValid()
 	if err != nil {
@@ -96,6 +100,10 @@ func (cm *ControllerMovie) GetTotal() (result uint32, err error) {
 }
 
 func (cm *ControllerMovie) UpdateBy(id string, m *model_movie.Movie) (result bool, err error) {
+	_, err = cm.FindBy(id)
+	if err != nil {
+		return false, err
+	}
 	query := `
 		UPDATE movies
 		SET 
@@ -113,6 +121,10 @@ func (cm *ControllerMovie) UpdateBy(id string, m *model_movie.Movie) (result boo
 }
 
 func (cm *ControllerMovie) DeleteBy(id string) (result bool, err error) {
+	_, err = cm.FindBy(id)
+	if err != nil {
+		return false, err
+	}
 	query := `DELETE FROM movies WHERE id = ?`
 	_, err = cm.Db.Query(query, &id)
 	if err != nil {
