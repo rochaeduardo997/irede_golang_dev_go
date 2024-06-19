@@ -165,18 +165,21 @@ func (cm *ControllerRoom) UpdateBy(id string, m *model_room.Room) (result bool, 
 	}
 	_, err = tx.Query(updateQuery, &m.Number, &m.Description, id)
 	if err != nil {
+		tx.Rollback()
 		return false, err
 	}
 	deleteAllRoomMoviesQuery := `DELETE FROM room_movies WHERE fk_room_id = ?`
 	_, err = tx.Query(deleteAllRoomMoviesQuery, &id)
 	if err != nil {
+		tx.Rollback()
 		return false, err
 	}
 	err = cm.InsertRoomMovies(id, m.Movies, tx)
 	if err != nil {
+		tx.Rollback()
 		return false, err
 	}
-
+	tx.Commit()
 	return true, nil
 }
 
