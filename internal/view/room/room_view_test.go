@@ -198,7 +198,6 @@ func TestUpdate(t *testing.T) {
 	assert.Nil(t, err)
 
 	room, err = cr.FindBy(room.Id)
-	fmt.Println(room)
 	assert.Nil(t, err)
 	assert.Equal(t, 300, int(room.Number))
 	assert.Equal(t, "new_description", room.Description)

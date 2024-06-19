@@ -3,7 +3,6 @@ package view_room
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -211,7 +210,6 @@ func (rm *ViewRoom) DeleteByIdHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result, err := rm.ControllerRoom.DeleteBy(id)
-	fmt.Println(result, err)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
