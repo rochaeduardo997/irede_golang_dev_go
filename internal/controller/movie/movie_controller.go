@@ -10,8 +10,8 @@ import (
 
 type ControllerMovie struct{ Db *sql.DB }
 
-func NewControllerMovie(vm *ControllerMovie) (result controller_interfaces.IGenericController[model_movie.Movie], err error) {
-	result = vm
+func NewControllerMovie(cm *ControllerMovie) (result controller_interfaces.IGenericController[model_movie.Movie], err error) {
+	result = cm
 	return
 }
 
