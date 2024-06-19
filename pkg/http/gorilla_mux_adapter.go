@@ -1,7 +1,10 @@
 package http_adapter
 
 import (
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -22,5 +25,11 @@ func (gm *GorillaMux) AddRoute(method, url string, callback func(w http.Response
 }
 
 func (gm *GorillaMux) Listen() {
-	http.ListenAndServe(":3000", gm.Router)
+	PORT := os.Getenv("API_PORT")
+	log.Printf("server running on http://localhost:%s", PORT)
+	http.ListenAndServe(fmt.Sprintf(":%s", PORT), gm.Router)
+}
+
+func (gm *GorillaMux) Route() *mux.Router {
+	return gm.Router
 }

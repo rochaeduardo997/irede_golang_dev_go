@@ -1,0 +1,251 @@
+basePath: /api/v1
+definitions:
+  model_movie.Movie:
+    properties:
+      director:
+        type: string
+      durationInSeconds:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  model_room.Room:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      movies:
+        items:
+          $ref: '#/definitions/model_movie.Movie'
+        type: array
+      number:
+        type: integer
+    type: object
+  view_movie.Body:
+    properties:
+      director:
+        type: string
+      durationInSeconds:
+        type: integer
+      name:
+        type: string
+    type: object
+  view_movie.FindAll:
+    properties:
+      page:
+        type: integer
+      registers:
+        items:
+          $ref: '#/definitions/model_movie.Movie'
+        type: array
+      total:
+        type: integer
+    type: object
+  view_room.FindAll:
+    properties:
+      page:
+        type: integer
+      registers:
+        items:
+          $ref: '#/definitions/model_room.Room'
+        type: array
+      total:
+        type: integer
+    type: object
+  view_room.InputRoomReq:
+    properties:
+      description:
+        type: string
+      moviesId:
+        items:
+          type: string
+        type: array
+      number:
+        type: integer
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:3000
+info:
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Movies
+  version: "1.0"
+paths:
+  /movies:
+    post:
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/view_movie.Body'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model_movie.Movie'
+      summary: Create a movie
+      tags:
+      - Movies
+  /movies/{id}:
+    delete:
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      summary: Delete a movie by id
+      tags:
+      - Movies
+    get:
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model_movie.Movie'
+      summary: Get movie by id
+      tags:
+      - Movies
+    put:
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/view_movie.Body'
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      summary: Update movie by id
+      tags:
+      - Movies
+  /movies/all/{page}:
+    get:
+      parameters:
+      - description: Page
+        in: path
+        name: page
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/view_movie.FindAll'
+      summary: Get all movies
+      tags:
+      - Movies
+  /rooms:
+    post:
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/view_room.InputRoomReq'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model_room.Room'
+      summary: Create a movie
+      tags:
+      - Rooms
+  /rooms/{id}:
+    delete:
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      summary: Delete a room by id
+      tags:
+      - Rooms
+    get:
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model_room.Room'
+      summary: Get room by id
+      tags:
+      - Rooms
+    put:
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/view_room.InputRoomReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      summary: Update room by id
+      tags:
+      - Rooms
+  /rooms/all/{page}:
+    get:
+      parameters:
+      - description: Page
+        in: path
+        name: page
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/view_room.FindAll'
+      summary: Get all rooms
+      tags:
+      - Rooms
+swagger: "2.0"

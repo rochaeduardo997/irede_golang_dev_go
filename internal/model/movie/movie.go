@@ -37,5 +37,5 @@ func (m *Movie) IsValid() (err error) {
 func (m *Movie) DurationInHours() (result string) {
 	var t time.Time
 	t = t.Add(time.Duration(m.DurationInSeconds) * time.Second)
-	return t.Format("15:00:00")
+	return t.Format("15:04:05")
 }

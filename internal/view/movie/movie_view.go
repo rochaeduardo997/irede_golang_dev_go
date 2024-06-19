@@ -19,6 +19,18 @@ type ViewMovie struct {
 	ControllerMovie controller_interfaces.IGenericController[model_movie.Movie]
 }
 
+type Body struct {
+	Name              string `json:"name"`
+	Director          string `json:"director"`
+	DurationInSeconds int    `json:"durationInSeconds"`
+}
+
+type FindAll struct {
+	Total     uint32
+	Page      uint16
+	Registers []*model_movie.Movie
+}
+
 func NewViewMovie(vm *ViewMovie) (result *ViewMovie) {
 	result = vm
 
@@ -31,6 +43,11 @@ func NewViewMovie(vm *ViewMovie) (result *ViewMovie) {
 	return
 }
 
+// @Summary      Create a movie
+// @Tags         Movies
+// @Param        data body Body true "body"
+// @Success      201  {object}  model_movie.Movie
+// @Router       /movies [post]
 func (vm *ViewMovie) CreateHandler(w http.ResponseWriter, r *http.Request) {
 	movie := &model_movie.Movie{}
 	err := json.NewDecoder(r.Body).Decode(&movie)
@@ -48,10 +65,15 @@ func (vm *ViewMovie) CreateHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(result))
 }
 
+// @Summary      Get movie by id
+// @Tags         Movies
+// @Param        id   path      string true  "Movie ID"
+// @Success      200  {object} model_movie.Movie
+// @Router       /movies/{id} [get]
 func (vm *ViewMovie) FindByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	if id == "" {
@@ -77,6 +99,11 @@ func (vm *ViewMovie) FindByIdHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resJSON)
 }
 
+// @Summary      Get all movies
+// @Tags         Movies
+// @Param        page   path      string true  "Page"
+// @Success      200  {object}    FindAll
+// @Router       /movies/all/{page} [get]
 func (vm *ViewMovie) FindAllHandler(w http.ResponseWriter, r *http.Request) {
 	page := mux.Vars(r)["page"]
 	pageInt, err := strconv.Atoi(page)
@@ -111,6 +138,12 @@ func (vm *ViewMovie) FindAllHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resJSON)
 }
 
+// @Summary      Update movie by id
+// @Tags         Movies
+// @Param        id   path      string true  "Movie ID"
+// @Param        data body Body true "body"
+// @Success      200  {boolean} boolean true
+// @Router       /movies/{id} [put]
 func (vm *ViewMovie) UpdateByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	movie := &model_movie.Movie{}
@@ -135,6 +168,11 @@ func (vm *ViewMovie) UpdateByIdHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(res))
 }
 
+// @Summary      Delete a movie by id
+// @Tags         Movies
+// @Param        id   path      string true  "Movie ID"
+// @Success      200  {boolean} boolean true
+// @Router       /movies/{id} [delete]
 func (vm *ViewMovie) DeleteByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	if id == "" {

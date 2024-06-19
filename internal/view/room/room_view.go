@@ -21,6 +21,12 @@ type InputRoomReq struct {
 	MoviesId    []string
 }
 
+type FindAll struct {
+	Total     uint32
+	Page      uint16
+	Registers []*model_room.Room
+}
+
 type ViewRoom struct {
 	Db              *sql.DB
 	HTTPAdapter     http_adapter.IHTTP
@@ -40,6 +46,11 @@ func NewViewRoom(rm *ViewRoom) (result *ViewRoom) {
 	return
 }
 
+// @Summary      Create a movie
+// @Tags         Rooms
+// @Param        data body InputRoomReq true "body"
+// @Success      201  {object}  model_room.Room
+// @Router       /rooms [post]
 func (rm *ViewRoom) CreateHandler(w http.ResponseWriter, r *http.Request) {
 	input := &InputRoomReq{}
 	err := json.NewDecoder(r.Body).Decode(&input)
@@ -65,10 +76,15 @@ func (rm *ViewRoom) CreateHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(result))
 }
 
+// @Summary      Get room by id
+// @Tags         Rooms
+// @Param        id   path      string true  "Room ID"
+// @Success      200  {object} model_room.Room
+// @Router       /rooms/{id} [get]
 func (rm *ViewRoom) FindByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	if id == "" {
@@ -103,6 +119,11 @@ func (rm *ViewRoom) FindByIdHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resJSON)
 }
 
+// @Summary      Get all rooms
+// @Tags         Rooms
+// @Param        page   path      string true  "Page"
+// @Success      200  {object}    FindAll
+// @Router       /rooms/all/{page} [get]
 func (rm *ViewRoom) FindAllHandler(w http.ResponseWriter, r *http.Request) {
 	page := mux.Vars(r)["page"]
 	pageInt, err := strconv.Atoi(page)
@@ -146,6 +167,12 @@ func (rm *ViewRoom) FindAllHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resJSON)
 }
 
+// @Summary      Update room by id
+// @Tags         Rooms
+// @Param        id   path      string true  "Room ID"
+// @Param        data body InputRoomReq true "body"
+// @Success      200  {boolean} boolean true
+// @Router       /rooms/{id} [put]
 func (rm *ViewRoom) UpdateByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	input := &InputRoomReq{}
@@ -172,6 +199,11 @@ func (rm *ViewRoom) UpdateByIdHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(res))
 }
 
+// @Summary      Delete a room by id
+// @Tags         Rooms
+// @Param        id   path      string true  "Room ID"
+// @Success      200  {boolean} boolean true
+// @Router       /rooms/{id} [delete]
 func (rm *ViewRoom) DeleteByIdHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	if id == "" {
